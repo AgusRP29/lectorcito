@@ -16,8 +16,6 @@ export default function LoginForm() {
             if (!formData.password) errors.password = true;
         } else if (!validateEmail(formData.email)) {
             errors.email = true;
-        } else {
-            console.log('OK')
         }
         const auth = getAuth(app);
         signInWithEmailAndPassword(auth, formData.email, formData.password)

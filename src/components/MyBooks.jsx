@@ -30,7 +30,6 @@ export default function MyBooks() {
     const fetchData = async () => {
       if (data && data.length > 0 && data[0].books) {
         const bookList = data[0].books.map(async (book) => {
-          console.log(book)
           const res = await fetch(URL_BOOK + book + ".json");
           const json = await res.json();
           const details = {
@@ -50,8 +49,7 @@ export default function MyBooks() {
   return (
     <ScrollView>
       <View style={styles.row}>
-        {
-          books.length > 0 ?
+        { books && books.length > 0 ?
             books.map((book, index) => (
               <BooksCard key={index} book={book} index={index} type={false} />
             ))

@@ -15,7 +15,7 @@ export default function Header() {
 const styles = StyleSheet.create({
     headerContainer: {
         width: '100%',
-        height: 100,
+        height: 70,
         backgroundColor: COLORS.secondary,
         justifyContent: 'center',
         shadowColor: COLORS.black,
@@ -32,6 +32,6 @@ const styles = StyleSheet.create({
         height: 100,
         resizeMode: 'contain',
         marginLeft: 10,
-        marginTop: 25,
+        marginTop: 8,
     }
 })

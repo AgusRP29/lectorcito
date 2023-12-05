@@ -5,6 +5,7 @@ import { collection, doc, updateDoc, query, where, getDocs } from "firebase/fire
 import { db } from '../utils/connection';
 import { getAuth } from "firebase/auth";
 import { COLORS } from '../utils/colors';
+import { Alert } from 'react-native';
 
 export default function BooksCard({ book, index, type }) {
     const { navigate } = useNavigation(); //hook para navegar entre pantallas
@@ -20,18 +21,18 @@ export default function BooksCard({ book, index, type }) {
             let docRef = null;
 
             querySnapshot.forEach((doc) => {
-                console.log(doc.id, " => ", doc.data());
                 docRef = doc;  // Utiliza la referencia directa en lugar del ID
-                console.log(docRef);
             });
 
             // Agregar un libro al arreglo de favoritos
             if (docRef.ref) {
                 const userDocRef = doc(db, "users", docRef.ref.id);
+                //Agregar solo si no existe
                 const payload = {
-                    books: [...docRef.data().books, keyBook]
+                    books: [...new Set([...docRef.data().books, keyBook])]
                 };
                 await updateDoc(userDocRef, payload);
+                Alert.alert("Book added to favorites");
             }
         } catch (error) {
             console.log(error);
@@ -39,7 +40,29 @@ export default function BooksCard({ book, index, type }) {
     }
 
     const deleteFavorites = async (keyBook) => {
-        console.log(keyBook);
+        try {
+            const userRef = collection(db, "users");
+            const q = query(userRef, where("id", "==", user.uid));
+            const querySnapshot = await getDocs(q);
+
+            let docRef = null;
+
+            querySnapshot.forEach((doc) => {
+                docRef = doc;  // Utiliza la referencia directa en lugar del ID
+            });
+
+            // Eliminar un libro al arreglo de favoritos
+            if (docRef.ref) {
+                const userDocRef = doc(db, "users", docRef.ref.id);
+                const payload = {
+                    books: docRef.data().books.filter((book) => book !== keyBook)
+                };
+                await updateDoc(userDocRef, payload);
+                Alert.alert("Book deleted from favorites");
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (

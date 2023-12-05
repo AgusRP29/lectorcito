@@ -37,7 +37,6 @@ export default function Profile() {
 
     function logout() {
       const auth = getAuth();
-      console.log(auth)
       signOut(auth).then(() => {
         // Sign-out successful.
       }).catch((error) => {
