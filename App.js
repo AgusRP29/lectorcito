@@ -11,6 +11,7 @@ import { COLORS } from './src/utils/colors';
 export default function App() {
   //Estado para saber si el usuario esta logueado o no
   const [userAuth, setUserAuth] = useState(false);
+  const [userUID, setUserUID] = useState(null);
 
   useEffect(() => {
     const auth = getAuth(app);
@@ -18,9 +19,11 @@ export default function App() {
       if (user) {
         const uid = user.uid;
         setUserAuth(true);
+        setUserUID(uid);
       } else {
         console.log(user);
         setUserAuth(false);
+        setUserUID(null);
       }
     });
   }, [userAuth]);

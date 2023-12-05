@@ -22,7 +22,9 @@ export default function LoginForm() {
         const auth = getAuth(app);
         signInWithEmailAndPassword(auth, formData.email, formData.password)
             .then((userCredential) => {
+                // Signed in 
                 const user = userCredential.user;
+                // ...
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
         height: 45,
         color: COLORS.black,
         width: 250,
-        marginBottom: 40,
+        marginBottom: 20,
         backgroundColor: COLORS.white,
         paddingHorizontal: 20,
         borderRadius: 15,

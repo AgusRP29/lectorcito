@@ -1,13 +1,11 @@
 import { StyleSheet, Text, View, Image, ScrollView } from 'react-native'
 import React, { useState, useEffect } from 'react'
-import { useNavigation } from '@react-navigation/native';
 import { COLORS } from '../utils/colors'
 import { TextInput, TouchableOpacity } from 'react-native-gesture-handler';
 import { Alert } from 'react-native';
+import BooksCard from './BooksCard';
 
 export default function Home() {
-    const { navigate } = useNavigation(); //hook para navegar entre pantallas
-    const URL_IMAGE = "https://covers.openlibrary.org/b/id/";   //URL de las imagenes de los libros
     const URL = "https://openlibrary.org/subjects/"; //URL de la API
     const [data, setData] = useState(null); //arreglo de libros
     const [search, setSearch] = useState("action"); //estado para la busqueda
@@ -62,8 +60,8 @@ export default function Home() {
                 setSearch(subject);
             } else {
                 //actualiza el estado de la categoria y el offset si la busqueda es valida
-                setSubject(subjectSearch);
                 setOffset(0);
+                setSubject(subjectSearch);
             }
         } catch (error) {
             Alert.alert("No search found");
@@ -96,7 +94,7 @@ export default function Home() {
             {/* Contenedor de los libros */}
             <View style={styles.row}>
                 {data && data.map((item, index) => (
-                    <Book key={item.key} book={item} index={index} URL_IMAGE={URL_IMAGE} navigate={navigate} />
+                    <BooksCard key={item.key} book={item} index={index} type={true} />
                 ))}
             </View>
 
@@ -107,25 +105,6 @@ export default function Home() {
                 offset={offset}
             />
         </ScrollView>
-    );
-}
-
-//componente para mostrar los libros
-function Book({ book, index, URL_IMAGE, navigate }) {
-    return (
-        //contenedor de cada libro, para hacer el efecto de 2 columnas
-        <View style={index % 2 === 0 ? styles.cardContainerEven : styles.cardContainerOdd}>
-            {/* contenedor de cada libro */}
-            <View style={styles.card}>
-                {/* imagen del libro */}
-                <TouchableOpacity onPress={() => { navigate("BooksDetails", { book }); }}>
-                    <Image source={{ uri: URL_IMAGE + book.cover + ".jpg" }} style={styles.image} />
-                </TouchableOpacity>
-                {/* titulo y autor del libro */}
-                <Text style={styles.bookTitle}>{book.title}</Text>
-                <Text>{book.authors[0].name}</Text>
-            </View>
-        </View>
     );
 }
 
@@ -174,35 +153,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 10,
     },
-    cardContainerEven: {
-        width: '48%',
-        marginBottom: 20,
-    },
-    cardContainerOdd: {
-        width: '48%',
-        marginBottom: 20,
-    },
-    card: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 10,
-        backgroundColor: COLORS.white,
-        alignItems: 'center',
-        height: "auto",
-    },
-    bookTitle: {
-        fontSize: 15,
-        fontWeight: 'bold',
-        marginBottom: 10,
-    },
-    image: {
-        width: 135,
-        height: 210,
-        resizeMode: 'cover',
-        borderRadius: 4,
-        marginBottom: 8,
-    },
     inputContainer: {
         padding: 16,
         flexDirection: 'row',
@@ -239,5 +189,5 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 10,
         marginBottom: 20,
-    }
+    },
 });

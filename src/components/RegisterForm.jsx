@@ -1,8 +1,10 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
-import { validateEmail } from '../utils/validations'
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import { app } from '../utils/connection'
+import { db } from '../utils/connection';
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { collection, addDoc } from "firebase/firestore";
+import { validateEmail } from '../utils/validations'
 import { COLORS } from '../utils/colors';
 
 export default function RegisterForm() {
@@ -12,10 +14,19 @@ export default function RegisterForm() {
 
     const register = () => {
         let errors = {};
-        if (!formData.email || !formData.password || !formData.repeatPassword) {
+        if (!formData.email || !formData.password || !formData.repeatPassword || !formData.name || !formData.lastname || !formData.nickname) {
             if (!formData.email) errors.email = true;
             if (!formData.password) errors.password = true;
             if (!formData.repeatPassword) errors.repeatPassword = true;
+            if (!formData.name) errors.name = true;
+            if (!formData.lastname) errors.lastname = true;
+            if (!formData.nickname) errors.nickname = true;
+        } else if (formData.name.length < 3) {
+            errors.name = true;
+        } else if (formData.lastname.length < 3) {
+            errors.lastname = true;
+        } else if (formData.nickname.length < 3) {
+            errors.nickname = true;
         } else if (!validateEmail(formData.email)) {
             errors.email = true;
         } else if (formData.password.length < 6) {
@@ -28,13 +39,24 @@ export default function RegisterForm() {
             const auth = getAuth(app);
             createUserWithEmailAndPassword(auth, formData.email, formData.password)
                 .then((userCredential) => {
-                    // Signed in 
                     const user = userCredential.user;
-                    // ...
+                    addDoc(collection(db, "users"), {
+                        id: user.uid,
+                        email: user.email,
+                        name: formData.name,
+                        lastname: formData.lastname,
+                        nickname: formData.nickname,
+                        books: []
+                    })
+                        .then((docRef) => {
+                            console.log("Document written with ID: ", docRef.id);
+                        })
+                        .catch((error) => {
+                            console.error("Error adding document: ", error);
+                        });
+
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
                     setFormError({ email: true, password: true, repeatPassword: true });
                 });
         }
@@ -42,32 +64,51 @@ export default function RegisterForm() {
     }
 
     function initialsValus() {
-        return { email: '', password: '', repeatPassword: '' }
+        return { email: '', password: '', repeatPassword: '', name: '', lastname: "", nickname: '' }
     }
 
     return (
         <View style={styles.contenedor}>
             <Text style={styles.title}>Ingresa tus datos</Text>
+            {/* nombre */}
+            <TextInput
+                style={[styles.input, formError.name && styles.inputError]}
+                placeholder='Nombre'
+                onChange={(e) => setFormData({ ...formData, name: e.nativeEvent.text })}
+            />
+            {/* lastname */}
+            <TextInput
+                style={[styles.input, formError.lastname && styles.inputError]}
+                placeholder='Apellido'
+                onChange={(e) => setFormData({ ...formData, lastname: e.nativeEvent.text })}
+            />
+            {/* nickname */}
+            <TextInput
+                style={[styles.input, formError.nickname && styles.inputError]}
+                placeholder='Nickname'
+                onChange={(e) => setFormData({ ...formData, nickname: e.nativeEvent.text })}
+            />
+            {/* email */}
             <TextInput
                 style={[styles.input, formError.email && styles.inputError]}
                 placeholder='Email'
                 onChange={(e) => setFormData({ ...formData, email: e.nativeEvent.text })}
             />
-            {formError.email && <Text style={styles.textError}>error</Text>}
+            {/* password */}
             <TextInput
                 style={[styles.input, formError.password && styles.inputError]}
                 placeholder='Contraseña'
                 secureTextEntry={true}
                 onChange={(e) => setFormData({ ...formData, password: e.nativeEvent.text })}
             />
-            {formError.password && <Text style={styles.textError}>error</Text>}
+            {/* repeat password */}
             <TextInput
                 style={[styles.input, formError.repeatPassword && styles.inputError]}
                 placeholder='Repetir Contraseña'
                 secureTextEntry={true}
                 onChange={(e) => setFormData({ ...formData, repeatPassword: e.nativeEvent.text })}
             />
-            {formError.repeatPassword && <Text style={styles.textError}>error</Text>}
+
             <TouchableOpacity style={styles.btnRegister} onPress={register}>
                 <Text style={styles.btnText}>Registrarse</Text>
             </TouchableOpacity>
@@ -88,7 +129,7 @@ const styles = StyleSheet.create({
         height: 45,
         color: COLORS.black,
         width: 250,
-        marginBottom: 40,
+        marginBottom: 20,
         backgroundColor: COLORS.white,
         paddingHorizontal: 20,
         borderRadius: 15,
@@ -99,12 +140,6 @@ const styles = StyleSheet.create({
 
     inputError: {
         borderColor: COLORS.red
-    },
-    textError: {
-        color: COLORS.red,
-        marginTop: -38,
-        marginBottom: 20,
-        marginLeft: 15,
     },
 
     contenedor: {
