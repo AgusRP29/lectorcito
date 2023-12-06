@@ -32,6 +32,6 @@ const styles = StyleSheet.create({
         height: 100,
         resizeMode: 'contain',
         marginLeft: 10,
-        marginTop: 8,
+        marginTop: 3,
     }
 })
